@@ -6,7 +6,7 @@ A simple game engine made in SDL2 and c#
 TODO write windows setup instructions
 ### Linux:
 requirements:
-SDL2-dev
-dotnet
+- SDL2-dev
+- dotnet
 
 just run `dotnet run` in the directory
