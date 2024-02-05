@@ -12,7 +12,9 @@ namespace Sdl2AsciiEngine
     {
         List<IntPtr> textures = new List<IntPtr>();
         Dictionary<int, bool> keyboard = new Dictionary<int, bool>();
-        
+        Dictionary<int, bool> keyboardPressed = new Dictionary<int, bool>();
+        Dictionary<int, bool> keyboardReleased = new Dictionary<int, bool>();
+
         SDL_Rect tileScale;
 
         float renderps = 0f;
@@ -30,9 +32,6 @@ namespace Sdl2AsciiEngine
         int tilesy = 36;
         
         Screen screen;
-
-        bool console = false;
-        bool pressed = false;
 
         public void Exit()
         {
@@ -99,27 +98,40 @@ namespace Sdl2AsciiEngine
             textures.Add(SDL_CreateTextureFromSurface(renderer,temp));  
             SDL_FreeSurface(temp);
         }
-        public void Update()
-        {
-            var timing = System.Diagnostics.Stopwatch.StartNew();
-            screen.SetColor(Color.White);
-            screen.SetBgColor(new Color(0, 0, 0));
-            screen.Clear();
+        public void HandleEvents(){
             while (SDL_PollEvent(out SDL_Event e) == 1)
             {
+				for (var i in keyboardReleased.Keys.ToList()){
+					keyboardReleased[i] = false;
+				}
                 switch (e.type)
                 {
                     case SDL_EventType.SDL_QUIT:
                         running = false;
                         break;
                     case SDL_EventType.SDL_KEYDOWN:
-                        keyboard [(int)e.key.keysym.sym] = true;
+                        if (keyboard[(int)e.key.keysym.sym]==false){
+                            keyboardPressed[(int)e.key.keysym.sym] = true;
+                        } else {
+                            keyboardPressed[(int)e.key.keysym.sym] = false;
+                        }
+                        keyboard[(int)e.key.keysym.sym] = true;
                         break;
                     case SDL_EventType.SDL_KEYUP:
+                    	keyboardReleased[(int)e.key.keysym.sym] = true;
+						keyboardPressed[(int)e.key.keysym.sym] = false;
                         keyboard[(int)e.key.keysym.sym] = false;
                         break;
                 }
             }
+        }
+        public void Update()
+        {
+            var timing = System.Diagnostics.Stopwatch.StartNew();
+            screen.SetColor(Color.White);
+            screen.SetBgColor(new Color(0, 0, 0));
+            screen.Clear();
+            HandleEvents();
 
             screen.SetColor(new Color(255, 255, 0));
             if (keyboard[(int)SDL_Keycode.SDLK_w])
@@ -173,7 +185,6 @@ namespace Sdl2AsciiEngine
             var timing = System.Diagnostics.Stopwatch.StartNew();
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
-            //framebuffer[1, 1] = 1;
             for (int y = 0; y < tilesy; y++)
             {
                 for (int x = 0; x < tilesx; x++)
