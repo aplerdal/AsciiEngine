@@ -17,6 +17,8 @@ namespace Sdl2AsciiEngine
 
         SDL_Rect tileScale;
 
+        Debug debug = new Debug();
+
         float renderps = 0f;
         float updateps = 0f;
         
@@ -82,14 +84,13 @@ namespace Sdl2AsciiEngine
             {
                 Console.WriteLine($"There was an issue creating the renderer. {SDL_GetError()}");
             }
-            // if (IMG_Init(IMG_InitFlags.IMG_INIT_PNG) == 0)
-            // {
-            //     Console.WriteLine($"There was an issue initilizing SDL2_Image {SDL_image.IMG_GetError()}");
-            // }
             screen = new Screen(tilesx, tilesy);
+            debug.engine = this;
             foreach (var key in Enum.GetValues(typeof(SDL_Keycode)))
             {
                 keyboard.Add((int)key, false);
+                keyboardPressed.Add((int)key,false);
+                keyboardReleased.Add((int)key,false);
             }
         }
         public void LoadContent()
@@ -101,7 +102,7 @@ namespace Sdl2AsciiEngine
         public void HandleEvents(){
             while (SDL_PollEvent(out SDL_Event e) == 1)
             {
-				for (var i in keyboardReleased.Keys.ToList()){
+				foreach (var i in keyboardReleased.Keys.ToList()){
 					keyboardReleased[i] = false;
 				}
                 switch (e.type)
@@ -150,27 +151,10 @@ namespace Sdl2AsciiEngine
             {
                 screen.WriteString("D", 5, 4);
             }
-            if (keyboard[(int)SDL_Keycode.SDLK_BACKQUOTE])
-            {
-                if (!pressed)
-                {
-                    pressed = true;
-                    console = !console;
-                }
-            }else
-            {
-                pressed = false;
-            }
 
             screen.SetColor(Color.White);
             screen.WriteString("Hello, World! >.<", 1, 1);
             screen.WriteDoubleRectangle(0, 0, 18, 12);
-
-            if (console)
-            {
-                screen.WriteLightRectangle(0, 0, tilesx-2, tilesy-12);
-                screen.ClearArea(1, 1, tilesx - 3, tilesy - 13);
-            }
 
             //Console.WriteLine("Update");
             timing.Stop();
