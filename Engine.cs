@@ -151,7 +151,10 @@ namespace Sdl2AsciiEngine
             {
                 screen.WriteString("D", 5, 4);
             }
-
+            screen.WriteString($"kh {keyboard[(int)SDL_Keycode.SDLK_SPACE]}",1, 5);
+            screen.WriteString($"kp {keyboardPressed[(int)SDL_Keycode.SDLK_SPACE]}",1, 6);
+            screen.WriteString($"kr {keyboardReleased[(int)SDL_Keycode.SDLK_SPACE]}",1, 7);
+            
             screen.SetColor(Color.White);
             screen.WriteString("Hello, World! >.<", 1, 1);
             screen.WriteDoubleRectangle(0, 0, 18, 12);
