@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Sayers.SDL2.Core" Version="1.0.11" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="assets\" />
   </ItemGroup>
 
@@ -21,5 +17,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Sayers.SDL2.Core" Version="1.0.11" />
+  </ItemGroup>
 </Project>

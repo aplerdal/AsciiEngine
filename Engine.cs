@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SDL2;
-using static SDL2.SDL_image;
 using static SDL2.SDL;
 
 namespace Sdl2AsciiEngine
@@ -84,10 +83,10 @@ namespace Sdl2AsciiEngine
             {
                 Console.WriteLine($"There was an issue creating the renderer. {SDL_GetError()}");
             }
-            if (IMG_Init(IMG_InitFlags.IMG_INIT_PNG) == 0)
-            {
-                Console.WriteLine($"There was an issue initilizing SDL2_Image {SDL_image.IMG_GetError()}");
-            }
+            // if (IMG_Init(IMG_InitFlags.IMG_INIT_PNG) == 0)
+            // {
+            //     Console.WriteLine($"There was an issue initilizing SDL2_Image {SDL_image.IMG_GetError()}");
+            // }
             screen = new Screen(tilesx, tilesy);
             foreach (var key in Enum.GetValues(typeof(SDL_Keycode)))
             {
@@ -96,7 +95,9 @@ namespace Sdl2AsciiEngine
         }
         public void LoadContent()
         {
-            textures.Add(IMG_LoadTexture(renderer, "assets/font.png"));
+            IntPtr temp = SDL_LoadBMP("assets/font.bmp");
+            textures.Add(SDL_CreateTextureFromSurface(renderer,temp));  
+            SDL_FreeSurface(temp);
         }
         public void Update()
         {
