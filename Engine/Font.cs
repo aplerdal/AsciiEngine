@@ -7,7 +7,7 @@ using SDL2;
 using static SDL2.SDL_image;
 using static SDL2.SDL;
 
-namespace Sdl2AsciiEngine
+namespace AsciiEngine
 {
     public class Font
     {

@@ -8,16 +8,16 @@ using static SDL2.SDL;
 using Timer = System.Timers.Timer;
 using System.Diagnostics;
 
-namespace Sdl2AsciiEngine
+namespace AsciiEngine
 {
     class Engine
     {
         List<IntPtr> textures = new List<IntPtr>();
 
         #region Keyboard
-        Dictionary<int, bool> keyDown = new Dictionary<int, bool>();
-        Dictionary<int, bool> keyPress = new Dictionary<int, bool>();
-        Dictionary<int, bool> keyReleased = new Dictionary<int, bool>();
+        public Dictionary<int, bool> keyDown = new Dictionary<int, bool>();
+        public Dictionary<int, bool> keyPress = new Dictionary<int, bool>();
+        public Dictionary<int, bool> keyReleased = new Dictionary<int, bool>();
         #endregion
 
         SDL_Rect tileScale;
@@ -27,23 +27,25 @@ namespace Sdl2AsciiEngine
         public float renderTime = 0f;
         public float updateTime = 0f;
 
-        Stopwatch activeTime = new Stopwatch();
+        public Stopwatch activeTime = new Stopwatch();
 
         SDL_Rect Screen;
         IntPtr window;
         IntPtr renderer;
         
         public bool running = true;
-        
-        Random rand = new Random();
 
         public static int tilesx = 64;
         public static int tilesy = 36;
 
-        Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx-1, h = (tilesy-10) });
+        public Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx-1, h = (tilesy-10) });
 
-        Screen? screen;
+        public Screen? screen;
+        public GameManager game;
 
+        public Engine(GameManager game){
+            this.game = game;
+        }
         public void Exit()
         {
             foreach (IntPtr tex in textures)
@@ -107,6 +109,11 @@ namespace Sdl2AsciiEngine
                 keyPress.Add((int)key,false);
                 keyReleased.Add((int)key,false);
             }
+
+            game.screen = screen;
+            game.debug = debug;
+            game.engine = this;
+            game.Init();
         }
         public void LoadContent()
         {
@@ -146,61 +153,12 @@ namespace Sdl2AsciiEngine
         }
         public void Update()
         {
-            var timing = Stopwatch.StartNew();
             tickCount++;
-            screen.SetColor(Color.White);
-            screen.SetBgColor(new Color(0, 0, 0));
-            screen.Clear();
             HandleEvents();
-
-            screen.SetColor(new Color(255, 255, 0));
-            if (keyDown[(int)SDL_Keycode.SDLK_w])
-            {
-                screen.WriteString("W", 4, 3);
-            }
-            if (keyDown[(int)SDL_Keycode.SDLK_a])
-            {
-                screen.WriteString("A", 3, 4);
-            }
-            if (keyDown[(int)SDL_Keycode.SDLK_s])
-            {
-                screen.WriteString("S", 4, 4);
-            }
-            if (keyDown[(int)SDL_Keycode.SDLK_d])
-            {
-                screen.WriteString("D", 5, 4);
-            }
-            if (keyPress[(int)SDL_Keycode.SDLK_BACKQUOTE]){
-                if (!debug.Enabled)
-                {
-                    debug.Activate();
-                } else
-                {
-                    debug.Deactivate();
-                }
-            }
-            
-            screen.SetColor(Color.White);
-            screen.WriteString("Hello, World! >.<", 1, 1);
-            screen.WriteDoubleRectangle(0, 0, 18, 12);
-            if (debug.Enabled)
-            {
-                debug.HandleInput(keyPress);
-                debug.Draw(activeTime);
-            }
-            
-
-            //Console.WriteLine("Update");
-            timing.Stop();
-            updateTime = timing.ElapsedMilliseconds;
-
-            //FPS
-            string timestr = Math.Round(renderTime + updateTime).ToString().PadLeft(6, '0').Substring(0, 2) + "." + Math.Round((renderTime + updateTime)).ToString().PadLeft(6, '0').Substring(2, 4) + " seconds per cycle";
-            screen.WriteString(timestr, 64-timestr.Length, 35);
+            game.Update();
         }
         public void Render()
         {
-            var timing = Stopwatch.StartNew();
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
             for (int y = 0; y < tilesy; y++)
@@ -220,8 +178,6 @@ namespace Sdl2AsciiEngine
                 }
             }
             SDL_RenderPresent(renderer);
-            timing.Stop();
-            renderTime = timing.ElapsedMilliseconds;
         }
     }
 }

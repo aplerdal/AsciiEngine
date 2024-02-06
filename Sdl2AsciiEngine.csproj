@@ -14,9 +14,6 @@
 
   <ItemGroup>
     <None Update="assets\font.bmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\font.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

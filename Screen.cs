@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sdl2AsciiEngine
+namespace AsciiEngine
 {
     public struct Color
     {

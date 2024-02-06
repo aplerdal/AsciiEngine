@@ -1,10 +1,11 @@
 using SDL2;
 using System.Diagnostics;
 using static SDL2.SDL;
-namespace Sdl2AsciiEngine{
+namespace AsciiEngine{
     class Debug {
         public Engine? engine;
         public Screen? screen;
+        public static bool Allowed = true;
         public bool Enabled = false;
         public string currentInput = "";
         LinkedList<string> output = new LinkedList<string>();
@@ -16,12 +17,14 @@ namespace Sdl2AsciiEngine{
 
         public Debug(SDL_Rect rect)
         {
+            if(!Allowed)return;
             this.rect = rect;
             Init();
         }
 
         public void Init()
         {
+            if(!Allowed)return;
             SDL_StopTextInput();
             for(int i = 0; i < rect.h-3; i++)
             {
@@ -32,17 +35,20 @@ namespace Sdl2AsciiEngine{
         }
         public void Activate()
         {
+            if(!Allowed)return;
             Enabled = true;
             SDL_StartTextInput();
         }
         public void Deactivate()
         {
+            if(!Allowed)return;
             currentInput = currentInput[..(currentInput.Length - 1)];
             SDL_StopTextInput();
             Enabled = false;
         }
         public void Draw(Stopwatch time)
         {
+            if(!Allowed)return;
             screen.ClearArea(0,0,rect.w,rect.h);
             screen.WriteLightRectangle(0, 0, rect.w, rect.h);
             string disp = currentInput.Length > rect.w - 1 ? currentInput[..(rect.w - 1)] : currentInput;
@@ -61,6 +67,7 @@ namespace Sdl2AsciiEngine{
         }
         public unsafe void HandleInput(Dictionary<int, bool> keyPress)
         {
+            if(!Allowed)return;
             if (keyPress[(int)SDL_Keycode.SDLK_RETURN]) {
                 ExecuteCommand(currentInput);
                 currentInput = "";
@@ -90,6 +97,7 @@ namespace Sdl2AsciiEngine{
             }
         }
         public void ExecuteCommand(string cmd){
+            if(!Allowed)return;
             commandHistory.AddFirst(cmd);
             commandHistory.RemoveLast();
             historyIndex = -1;
