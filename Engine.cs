@@ -24,8 +24,8 @@ namespace Sdl2AsciiEngine
 
         public long tickCount = 0;
 
-        float renderps = 0f;
-        float updateps = 0f;
+        public float renderps = 0f;
+        public float updateps = 0f;
 
         Stopwatch activeTime = new Stopwatch();
 
@@ -38,15 +38,12 @@ namespace Sdl2AsciiEngine
         
         Random rand = new Random();
 
-        static int tilesx = 64;
-        static int tilesy = 36;
+        public static int tilesx = 64;
+        public static int tilesy = 36;
 
-        Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx - 1, h = tilesy - 10 });
+        Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx, h = (tilesy-10) });
 
-        Screen screen;
-        public string textInput;
-
-        public int readthis = 438;
+        Screen? screen;
 
         public void Exit()
         {
@@ -101,6 +98,7 @@ namespace Sdl2AsciiEngine
 
             debug.engine = this;
             debug.screen = screen;
+            SDL_StopTextInput();
 
             activeTime.Start();
 
@@ -117,7 +115,8 @@ namespace Sdl2AsciiEngine
             textures.Add(SDL_CreateTextureFromSurface(renderer,temp));  
             SDL_FreeSurface(temp);
         }
-        public unsafe void HandleEvents(){
+        public unsafe void HandleEvents()
+        {
             foreach (var i in keyReleased.Keys.ToList())
             {
                 keyReleased[i] = false;

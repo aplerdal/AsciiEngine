@@ -3,13 +3,16 @@ using System.Diagnostics;
 using static SDL2.SDL;
 namespace Sdl2AsciiEngine{
     class Debug {
-        public Engine engine;
-        public Screen screen;
+        public Engine? engine;
+        public Screen? screen;
         public bool Enabled = false;
-        bool pressed = false;
         public string currentInput = "";
-        LinkedList<String> output = new LinkedList<string>();
+        LinkedList<string> output = new LinkedList<string>();
+        LinkedList<string> commandHistory = new LinkedList<string>();
         SDL_Rect rect;
+
+        int historyIndex = -1;
+        string activeCmd = "";
 
         public Debug(SDL_Rect rect)
         {
@@ -19,10 +22,13 @@ namespace Sdl2AsciiEngine{
 
         public void Init()
         {
+            SDL_StopTextInput();
             for(int i = 0; i < rect.h-3; i++)
             {
                 output.AddLast("");
+                commandHistory.AddLast("");
             }
+
         }
         public void Activate()
         {
@@ -63,8 +69,30 @@ namespace Sdl2AsciiEngine{
             {
                 currentInput = currentInput.Substring(0,Math.Clamp(currentInput.Length-1,0,int.MaxValue));
             }
+            if (keyPress[(int)SDL_Keycode.SDLK_UP]) {
+                if (historyIndex<0){
+                    activeCmd = currentInput;
+                }
+                historyIndex++;
+                if (historyIndex > commandHistory.Count){
+                    historyIndex = commandHistory.Count;
+                }
+                currentInput = commandHistory.ElementAt(historyIndex);
+            }
+            if (keyPress[(int)SDL_Keycode.SDLK_DOWN]) {
+                historyIndex-=1;
+                if (historyIndex < 0){
+                    historyIndex = -1;
+                    currentInput = activeCmd;
+                } else {
+                    currentInput = commandHistory.ElementAt(historyIndex);
+                }
+            }
         }
         public void ExecuteCommand(string cmd){
+            commandHistory.AddFirst(cmd);
+            commandHistory.RemoveLast();
+            historyIndex = -1;
             string[] command = cmd.Split(' ');
             switch (command[0].ToLower()){
                 case "var":
@@ -84,6 +112,7 @@ namespace Sdl2AsciiEngine{
                     }
                     break;
                 default:
+                    output.RemoveFirst();
                     output.AddLast("Command not found");
                     break;
             }

@@ -17,7 +17,6 @@ namespace Sdl2AsciiEngine
                 engine.Render();
             }
             engine.Exit();
-            Console.WriteLine("exit");
         }
     }
 }
