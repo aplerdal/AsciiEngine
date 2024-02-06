@@ -10,7 +10,6 @@ namespace Sdl2AsciiEngine
             Engine engine = new Engine();
             Font font = new Font();
             Console.WriteLine("---- Starting ----");
-            Console.WriteLine("init");
             engine.Init();
             engine.LoadContent();
             while (engine.running) {

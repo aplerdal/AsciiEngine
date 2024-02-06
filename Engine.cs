@@ -2,26 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using SDL2;
+using System.Timers;
 using static SDL2.SDL;
+using Timer = System.Timers.Timer;
+using System.Diagnostics;
 
 namespace Sdl2AsciiEngine
 {
     class Engine
     {
         List<IntPtr> textures = new List<IntPtr>();
-        Dictionary<int, bool> keyboard = new Dictionary<int, bool>();
-        Dictionary<int, bool> keyboardPressed = new Dictionary<int, bool>();
-        Dictionary<int, bool> keyboardReleased = new Dictionary<int, bool>();
+
+        #region Keyboard
+        Dictionary<int, bool> keyDown = new Dictionary<int, bool>();
+        Dictionary<int, bool> keyPress = new Dictionary<int, bool>();
+        Dictionary<int, bool> keyReleased = new Dictionary<int, bool>();
+        #endregion
 
         SDL_Rect tileScale;
 
-        Debug debug = new Debug();
+        public long tickCount = 0;
 
         float renderps = 0f;
         float updateps = 0f;
-        
+
+        Stopwatch activeTime = new Stopwatch();
+
+
         SDL_Rect Screen;
         IntPtr window;
         IntPtr renderer;
@@ -29,11 +37,16 @@ namespace Sdl2AsciiEngine
         public bool running = true;
         
         Random rand = new Random();
-        
-        int tilesx = 64;
-        int tilesy = 36;
-        
+
+        static int tilesx = 64;
+        static int tilesy = 36;
+
+        Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx - 1, h = tilesy - 10 });
+
         Screen screen;
+        public string textInput;
+
+        public int readthis = 438;
 
         public void Exit()
         {
@@ -85,12 +98,17 @@ namespace Sdl2AsciiEngine
                 Console.WriteLine($"There was an issue creating the renderer. {SDL_GetError()}");
             }
             screen = new Screen(tilesx, tilesy);
+
             debug.engine = this;
+            debug.screen = screen;
+
+            activeTime.Start();
+
             foreach (var key in Enum.GetValues(typeof(SDL_Keycode)))
             {
-                keyboard.Add((int)key, false);
-                keyboardPressed.Add((int)key,false);
-                keyboardReleased.Add((int)key,false);
+                this.keyDown.Add((int)key, false);
+                keyPress.Add((int)key,false);
+                keyReleased.Add((int)key,false);
             }
         }
         public void LoadContent()
@@ -99,29 +117,31 @@ namespace Sdl2AsciiEngine
             textures.Add(SDL_CreateTextureFromSurface(renderer,temp));  
             SDL_FreeSurface(temp);
         }
-        public void HandleEvents(){
+        public unsafe void HandleEvents(){
+            foreach (var i in keyReleased.Keys.ToList())
+            {
+                keyReleased[i] = false;
+                keyPress[i] = false;
+            }
             while (SDL_PollEvent(out SDL_Event e) == 1)
             {
-				foreach (var i in keyboardReleased.Keys.ToList()){
-					keyboardReleased[i] = false;
-				}
                 switch (e.type)
                 {
                     case SDL_EventType.SDL_QUIT:
                         running = false;
                         break;
+                    case SDL_EventType.SDL_TEXTINPUT:
+                        debug.currentInput += Encoding.UTF8.GetString(e.text.text, 1);
+                        break;
                     case SDL_EventType.SDL_KEYDOWN:
-                        if (keyboard[(int)e.key.keysym.sym]==false){
-                            keyboardPressed[(int)e.key.keysym.sym] = true;
-                        } else {
-                            keyboardPressed[(int)e.key.keysym.sym] = false;
+                        if (keyDown[(int)e.key.keysym.sym]==false){
+                            keyPress[(int)e.key.keysym.sym] = true;
                         }
-                        keyboard[(int)e.key.keysym.sym] = true;
+                        keyDown[(int)e.key.keysym.sym] = true;
                         break;
                     case SDL_EventType.SDL_KEYUP:
-                    	keyboardReleased[(int)e.key.keysym.sym] = true;
-						keyboardPressed[(int)e.key.keysym.sym] = false;
-                        keyboard[(int)e.key.keysym.sym] = false;
+                    	keyReleased[(int)e.key.keysym.sym] = true;
+                        keyDown[(int)e.key.keysym.sym] = false;
                         break;
                 }
             }
@@ -129,35 +149,48 @@ namespace Sdl2AsciiEngine
         public void Update()
         {
             var timing = System.Diagnostics.Stopwatch.StartNew();
+            tickCount++;
             screen.SetColor(Color.White);
             screen.SetBgColor(new Color(0, 0, 0));
             screen.Clear();
             HandleEvents();
 
             screen.SetColor(new Color(255, 255, 0));
-            if (keyboard[(int)SDL_Keycode.SDLK_w])
+            if (keyDown[(int)SDL_Keycode.SDLK_w])
             {
                 screen.WriteString("W", 4, 3);
             }
-            if (keyboard[(int)SDL_Keycode.SDLK_a])
+            if (keyDown[(int)SDL_Keycode.SDLK_a])
             {
                 screen.WriteString("A", 3, 4);
             }
-            if (keyboard[(int)SDL_Keycode.SDLK_s])
+            if (keyDown[(int)SDL_Keycode.SDLK_s])
             {
                 screen.WriteString("S", 4, 4);
             }
-            if (keyboard[(int)SDL_Keycode.SDLK_d])
+            if (keyDown[(int)SDL_Keycode.SDLK_d])
             {
                 screen.WriteString("D", 5, 4);
             }
-            screen.WriteString($"kh {keyboard[(int)SDL_Keycode.SDLK_SPACE]}",1, 5);
-            screen.WriteString($"kp {keyboardPressed[(int)SDL_Keycode.SDLK_SPACE]}",1, 6);
-            screen.WriteString($"kr {keyboardReleased[(int)SDL_Keycode.SDLK_SPACE]}",1, 7);
+            if (keyPress[(int)SDL_Keycode.SDLK_BACKQUOTE]){
+                if (!debug.Enabled)
+                {
+                    debug.Activate();
+                } else
+                {
+                    debug.Deactivate();
+                }
+            }
             
             screen.SetColor(Color.White);
             screen.WriteString("Hello, World! >.<", 1, 1);
             screen.WriteDoubleRectangle(0, 0, 18, 12);
+            if (debug.Enabled)
+            {
+                debug.HandleInput(keyPress);
+                debug.Draw(activeTime);
+            }
+            
 
             //Console.WriteLine("Update");
             timing.Stop();
