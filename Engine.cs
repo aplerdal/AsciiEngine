@@ -29,7 +29,6 @@ namespace Sdl2AsciiEngine
 
         Stopwatch activeTime = new Stopwatch();
 
-
         SDL_Rect Screen;
         IntPtr window;
         IntPtr renderer;
@@ -215,7 +214,7 @@ namespace Sdl2AsciiEngine
                     SDL_SetTextureColorMod(textures[0], t.bgColor.r, t.bgColor.g, t.bgColor.b);
                     SDL_RenderCopy(renderer, textures[0], ref bgtile, ref tilePos);
 
-                    SDL_Rect tile = new SDL_Rect { x = (t.index %16)*8, y = (int)Math.Floor((decimal)t.index / 16)*8, w = 8, h = 8 };
+                    SDL_Rect tile = new SDL_Rect { x = t.index %16*8, y = (int)Math.Floor((decimal)t.index / 16)*8, w = 8, h = 8 };
                     SDL_SetTextureColorMod(textures[0], t.color.r, t.color.g, t.color.b);
                     SDL_RenderCopy(renderer, textures[0], ref tile, ref tilePos);
                 }
