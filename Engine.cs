@@ -24,8 +24,8 @@ namespace Sdl2AsciiEngine
 
         public long tickCount = 0;
 
-        public float renderps = 0f;
-        public float updateps = 0f;
+        public float renderTime = 0f;
+        public float updateTime = 0f;
 
         Stopwatch activeTime = new Stopwatch();
 
@@ -41,7 +41,7 @@ namespace Sdl2AsciiEngine
         public static int tilesx = 64;
         public static int tilesy = 36;
 
-        Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx, h = (tilesy-10) });
+        Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx-1, h = (tilesy-10) });
 
         Screen? screen;
 
@@ -147,7 +147,7 @@ namespace Sdl2AsciiEngine
         }
         public void Update()
         {
-            var timing = System.Diagnostics.Stopwatch.StartNew();
+            var timing = Stopwatch.StartNew();
             tickCount++;
             screen.SetColor(Color.White);
             screen.SetBgColor(new Color(0, 0, 0));
@@ -193,15 +193,15 @@ namespace Sdl2AsciiEngine
 
             //Console.WriteLine("Update");
             timing.Stop();
-            updateps = timing.ElapsedMilliseconds;
+            updateTime = timing.ElapsedMilliseconds;
 
             //FPS
-            string timestr = Math.Round((renderps + updateps)).ToString().PadLeft(6, '0').Substring(0, 2) + "." + Math.Round((renderps + updateps)).ToString().PadLeft(6, '0').Substring(2, 4) + " seconds per cycle";
+            string timestr = Math.Round(renderTime + updateTime).ToString().PadLeft(6, '0').Substring(0, 2) + "." + Math.Round((renderTime + updateTime)).ToString().PadLeft(6, '0').Substring(2, 4) + " seconds per cycle";
             screen.WriteString(timestr, 64-timestr.Length, 35);
         }
         public void Render()
         {
-            var timing = System.Diagnostics.Stopwatch.StartNew();
+            var timing = Stopwatch.StartNew();
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
             for (int y = 0; y < tilesy; y++)
@@ -222,7 +222,7 @@ namespace Sdl2AsciiEngine
             }
             SDL_RenderPresent(renderer);
             timing.Stop();
-            renderps = timing.ElapsedMilliseconds;
+            renderTime = timing.ElapsedMilliseconds;
         }
     }
 }
