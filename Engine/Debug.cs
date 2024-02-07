@@ -3,8 +3,8 @@ using System.Diagnostics;
 using static SDL2.SDL;
 namespace AsciiEngine{
     class Debug {
-        public Engine? engine;
-        public Screen? screen;
+        public Engine engine;
+        public Screen screen;
         public static bool Allowed = true;
         public bool Enabled = false;
         public string currentInput = "";
@@ -15,7 +15,9 @@ namespace AsciiEngine{
         int historyIndex = -1;
         string activeCmd = "";
 
+        #pragma warning disable CS8618
         public Debug(SDL_Rect rect)
+        #pragma warning restore CS8618
         {
             if(!Allowed)return;
             this.rect = rect;

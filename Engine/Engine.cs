@@ -34,18 +34,21 @@ namespace AsciiEngine
         IntPtr renderer;
         
         public bool running = true;
+        public string textInput = "";
 
         public static int tilesx = 64;
         public static int tilesy = 36;
 
         public Debug debug = new Debug(new SDL_Rect() { x = 0, y = 0, w = tilesx-1, h = (tilesy-10) });
 
-        public Screen? screen;
+        public Screen screen;
         public GameManager game;
 
+        #pragma warning disable CS8618
         public Engine(GameManager game){
             this.game = game;
         }
+        #pragma warning restore CS8618
         public void Exit()
         {
             foreach (IntPtr tex in textures)
@@ -136,7 +139,10 @@ namespace AsciiEngine
                         running = false;
                         break;
                     case SDL_EventType.SDL_TEXTINPUT:
-                        debug.currentInput += Encoding.UTF8.GetString(e.text.text, 1);
+                        textInput += Encoding.UTF8.GetString(e.text.text, 1);
+                        if (debug.Enabled){
+                            debug.currentInput += Encoding.UTF8.GetString(e.text.text, 1);    
+                        }
                         break;
                     case SDL_EventType.SDL_KEYDOWN:
                         if (keyDown[(int)e.key.keysym.sym]==false){
