@@ -8,8 +8,8 @@ Lots of breaking changes happening, so I wouldn't reccommend using this right no
 ## Building
 ### Windows:
 1. Open Project in Visual Studio
-2. Allow unsafe code (Project > Properties > Build > General > Allow code that uses unsafe keyword to compile
-3. Run the project
+2. Allow unsafe code (Project > Properties > Build > General > Allow code that uses unsafe keyword to compile)
+4. Run the project
 ### Linux:
 requirements:
 - SDL2-dev
